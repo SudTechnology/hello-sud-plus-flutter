@@ -118,6 +118,20 @@
             @"message" : @"success",
             @"errorCode" : @0,
         });
+    } else if ([@"notifyStateChange" isEqualToString:call.method]) {
+        NSString *state = ((NSString *)call.arguments[@"state"]);
+        NSString *dataJson = ((NSString *)call.arguments[@"dataJson"]);
+        [self.gameApp notifyStateChange:state dataJson:dataJson listener:^(int retCode, const NSString * _Nonnull retMsg, const NSString * _Nonnull dataJson) {
+            result(@{
+                @"errorCode" : [NSNumber numberWithInt:retCode],
+                @"dataJson" : dataJson,
+                @"message" : retMsg,
+            });
+        }];
+        result(@{
+            @"message" : @"success",
+            @"errorCode" : @0,
+        });
     } else {
         result(FlutterMethodNotImplemented);
     }
