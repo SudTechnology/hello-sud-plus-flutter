@@ -10,8 +10,7 @@ class SudMGPPlugin {
   static void Function(Map map)? onEvent;
   static void registerEventHandler(Function(Map map) eventHandle) async {
     onEvent = eventHandle;
-    streamSubscription =
-        _eventChannel.receiveBroadcastStream().listen(eventListener);
+    streamSubscription = _eventChannel.receiveBroadcastStream().listen(eventListener);
   }
 
   static void eventListener(dynamic data) {
@@ -26,18 +25,15 @@ class SudMGPPlugin {
     return await _methodChannel.invokeMethod("getVersion", {});
   }
 
-  static Future<Map> initSDK(
-      String appid, String appkey, bool isTestEnv) async {
-    return await _methodChannel.invokeMethod(
-        "initSDK", {"appid": appid, "appkey": appkey, "isTestEnv": isTestEnv});
+  static Future<Map> initSDK(String appid, String appkey, bool isTestEnv) async {
+    return await _methodChannel.invokeMethod("initSDK", {"appid": appid, "appkey": appkey, "isTestEnv": isTestEnv});
   }
 
   static Future<Map> getGameList() async {
     return await _methodChannel.invokeMethod("getGameList", {});
   }
 
-  static Future<Map> loadGame(String userid, String roomid, String code,
-      int gameid, String language, String viewSize, String gameConfig) async {
+  static Future<Map> loadGame(String userid, String roomid, String code, int gameid, String language, String viewSize, String gameConfig) async {
     return await _methodChannel.invokeMethod("loadGame", {
       "userid": userid,
       "roomid": roomid,
@@ -55,5 +51,12 @@ class SudMGPPlugin {
 
   static Future<Map> destroyGame() async {
     return await _methodChannel.invokeMethod("destroyGame", {});
+  }
+
+  static Future<Map> notifyStateChange(String state, String dataJson) async {
+    return await _methodChannel.invokeMethod("notifyStateChange", {
+      "state": state,
+      "dataJson": dataJson,
+    });
   }
 }
