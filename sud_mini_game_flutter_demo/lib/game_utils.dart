@@ -4,6 +4,10 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
+import 'package:flutter/gestures.dart';
+import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
+
 class GameInfo {
   int mg_id;
   String name;
@@ -50,22 +54,49 @@ Widget? getPlatformView(String viewType, Function(int viewID) onViewCreated) {
           onViewCreated(viewID);
         });
   } else if (TargetPlatform.android == defaultTargetPlatform) {
-    return AndroidView(
-        key: UniqueKey(),
-        viewType: viewType,
-        onPlatformViewCreated: (int viewID) {
-          onViewCreated(viewID);
-        });
+    // Pass parameters to the platform side.
+    const Map<String, dynamic> creationParams = <String, dynamic>{};
+
+    return PlatformViewLink(
+      viewType: viewType,
+      surfaceFactory: (context, controller) {
+        return AndroidViewSurface(
+          controller: controller as AndroidViewController,
+          gestureRecognizers: const <Factory<OneSequenceGestureRecognizer>>{},
+          hitTestBehavior: PlatformViewHitTestBehavior.opaque,
+        );
+      },
+      onCreatePlatformView: (params) {
+        return PlatformViewsService.initExpensiveAndroidView(
+          id: params.id,
+          viewType: viewType,
+          layoutDirection: TextDirection.ltr,
+          creationParams: creationParams,
+          creationParamsCodec: const StandardMessageCodec(),
+          onFocus: () {
+            params.onFocusChanged(true);
+          },
+        )
+          ..addOnPlatformViewCreatedListener(params.onPlatformViewCreated)
+          ..create();
+      },
+    );
+
+    // 使用AndroidView会导致原生的SurfaceView被置于最顶端显示
+    // return AndroidView(
+    //     key: UniqueKey(),
+    //     viewType: viewType,
+    //     onPlatformViewCreated: (int viewID) {
+    //       onViewCreated(viewID);
+    //     });
   }
   return null;
 }
 
-Future<Map<String, dynamic>> getRequest(
-    String url, String api, Map<String, dynamic> jsonMap) async {
+Future<Map<String, dynamic>> getRequest(String url, String api, Map<String, dynamic> jsonMap) async {
   HttpClient httpClient = HttpClient();
   var uri = Uri.https(url, api, jsonMap);
-  HttpClientRequest request =
-      await httpClient.getUrl(Uri.parse(uri.toString()));
+  HttpClientRequest request = await httpClient.getUrl(Uri.parse(uri.toString()));
   request.headers.set('content-type', 'application/json');
   HttpClientResponse response = await request.close();
   print("kaniel, http status:" + response.statusCode.toString());
@@ -75,8 +106,7 @@ Future<Map<String, dynamic>> getRequest(
   return map;
 }
 
-Future<Map<String, dynamic>> postRequest(
-    String url, String api, Map<String, dynamic> jsonMap) async {
+Future<Map<String, dynamic>> postRequest(String url, String api, Map<String, dynamic> jsonMap) async {
   HttpClient httpClient = HttpClient();
   HttpClientRequest request = await httpClient.postUrl(Uri.parse(url + api));
   request.headers.set('Content-Type', 'application/json');

@@ -6,6 +6,7 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import android.view.View
+import android.widget.FrameLayout
 import androidx.annotation.NonNull
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
@@ -15,9 +16,7 @@ import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
-import io.flutter.plugin.common.StandardMessageCodec
 import io.flutter.plugin.platform.PlatformView
-import io.flutter.plugin.platform.PlatformViewFactory
 import tech.sud.mgp.core.ISudFSMMG
 import tech.sud.mgp.core.ISudFSMStateHandle
 import tech.sud.mgp.core.ISudFSTAPP
@@ -26,18 +25,19 @@ import tech.sud.mgp.core.ISudListenerInitSDK
 import tech.sud.mgp.core.SudMGP
 
 
-class SudMGPPlugin : FlutterPlugin, MethodCallHandler, ActivityAware, EventChannel.StreamHandler, PlatformView,
-    PlatformViewFactory(StandardMessageCodec.INSTANCE) {
+class SudMGPPlugin : MethodCallHandler, ActivityAware,
+    EventChannel.StreamHandler, PlatformView {
 
     private var uiHandler: Handler? = null
-    private lateinit var context: Context
-    private lateinit var activity: Activity
-    private lateinit var methodChannel: MethodChannel
-    private lateinit var eventChannel: EventChannel
+    private var context: Context
+    private var activity: Activity
+    private var methodChannel: MethodChannel
+    private var eventChannel: EventChannel
     private var eventSink: EventChannel.EventSink? = null
 
     private var _gameApp: ISudFSTAPP? = null // game interface
-    private lateinit var _gameView: View
+    private var _gameView: View? = null
+    private val gameContainer: FrameLayout
 
     private var _viewSize: String? = null
     private var _gameConfig: String? = null
@@ -48,20 +48,16 @@ class SudMGPPlugin : FlutterPlugin, MethodCallHandler, ActivityAware, EventChann
         }
     }
 
-    // FlutterPlugin
-    override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
-        context = flutterPluginBinding.applicationContext
-        methodChannel = MethodChannel(flutterPluginBinding.binaryMessenger, "SudMGPPlugin")
-        eventChannel = EventChannel(flutterPluginBinding.binaryMessenger, "SudMGPPluginEvent")
+    constructor(activity: MainActivity, viewId: Int, creationParams: Map<String?, Any?>?, binding: FlutterPlugin.FlutterPluginBinding) {
+        this.context = activity
+        this.activity = activity
+        this.methodChannel = MethodChannel(binding.binaryMessenger, "SudMGPPlugin")
+        this.eventChannel = EventChannel(binding.binaryMessenger, "SudMGPPluginEvent")
 
-        flutterPluginBinding.getPlatformViewRegistry().registerViewFactory("SudMGPPluginView", this);
+        this.methodChannel.setMethodCallHandler(this)
+        this.eventChannel.setStreamHandler(this)
 
-        methodChannel.setMethodCallHandler(this)
-        eventChannel.setStreamHandler(this);
-    }
-
-    override fun onDetachedFromEngine(@NonNull binding: FlutterPlugin.FlutterPluginBinding) {
-        methodChannel.setMethodCallHandler(null)
+        gameContainer = FrameLayout(activity)
     }
 
     // ActivityAware
@@ -71,7 +67,8 @@ class SudMGPPlugin : FlutterPlugin, MethodCallHandler, ActivityAware, EventChann
 
     override fun onDetachedFromActivityForConfigChanges() {}
     override fun onReattachedToActivityForConfigChanges(binding: ActivityPluginBinding) {}
-    override fun onDetachedFromActivity() {}
+    override fun onDetachedFromActivity() {
+    }
 
     // EventChannel.StreamHandler Interface
     override fun onListen(arguments: Any?, events: EventChannel.EventSink) {
@@ -118,7 +115,6 @@ class SudMGPPlugin : FlutterPlugin, MethodCallHandler, ActivityAware, EventChann
             }
         }
     }
-
 
     fun getVersion(call: MethodCall, result: MethodChannel.Result) {
         var version = SudMGP.getVersion();
@@ -233,21 +229,18 @@ class SudMGPPlugin : FlutterPlugin, MethodCallHandler, ActivityAware, EventChann
             }
         })
 
-        _gameView = _gameApp!!.getGameView();
+        _gameView = _gameApp?.gameView
+        _gameView?.let {
+            gameContainer.addView(it, FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT)
+        }
         Log.d("sud", "kt sud gameView:$_gameView")
         result.success(mapOf("errorCode" to 0, "message" to "success"))
     }
 
-
-    // PlatformViewFactory
-    override fun create(context: Context, viewId: Int, args: Any?): PlatformView {
-        return this
-    }
-
     // PlatformView
     override fun getView(): View {
-        Log.d("sud", "kt sud getView:$_gameView")
-        return _gameView
+        Log.d("sud", "kt sud getView:$gameContainer")
+        return gameContainer
     }
 
     override fun dispose() {}
