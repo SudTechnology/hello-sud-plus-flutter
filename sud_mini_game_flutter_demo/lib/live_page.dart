@@ -55,10 +55,7 @@ class LivePageState extends State<LivePage> {
   }
 
   void getCode() {
-    postRequest(MG_NAME_LOGIN_AUTH_URL, '/login/v3', {
-      'user_id': localUserID,
-      'app_id': MG_APPID
-    }).then((rsp) => setState(() {
+    postRequest(MG_NAME_LOGIN_AUTH_URL, '/login/v3', {'user_id': localUserID, 'app_id': MG_APPID}).then((rsp) => setState(() {
           if (rsp['ret_code'] == 0) {
             _authcode = rsp['data']['code'];
           }
@@ -71,10 +68,7 @@ class LivePageState extends State<LivePage> {
   }
 
   void loadGame() {
-    postRequest(MG_NAME_LOGIN_AUTH_URL, '/login/v3', {
-      'user_id': localUserID,
-      'app_id': MG_APPID
-    }).then((rsp) => setState(() async {
+    postRequest(MG_NAME_LOGIN_AUTH_URL, '/login/v3', {'user_id': localUserID, 'app_id': MG_APPID}).then((rsp) => setState(() async {
           if (rsp['ret_code'] == 0) {
             _authcode = rsp['data']['code'];
 
@@ -97,18 +91,14 @@ class LivePageState extends State<LivePage> {
 
   void loadIOSGame() {
     print("Start Load Game");
-    SudMGPPlugin.loadGame(localUserID, widget.liveID, _authcode,
-            1468180338417074177, "en-US", getGameViewSize(), getGameConfig())
-        .then((ret) {
+    SudMGPPlugin.loadGame(localUserID, widget.liveID, _authcode, 1582551621189419010, "en-US", getGameViewSize(), getGameConfig()).then((ret) {
       setState(() => {});
     });
   }
 
   void loadAndroidGame() {
     print("loadAndroidGame:" + _authcode);
-    SudMGPPlugin.loadGame(localUserID, widget.liveID, _authcode,
-            1468180338417074177, "en-US", getGameViewSize(), getGameConfig())
-        .then((ret) {
+    SudMGPPlugin.loadGame(localUserID, widget.liveID, _authcode, 1582551621189419010, "en-US", getGameViewSize(), getGameConfig()).then((ret) {
       setState(() {
         print("loadAndroidGame finished");
         _gameView = getPlatformView('SudMGPPluginView', (int viewid) => {});
@@ -149,11 +139,8 @@ class LivePageState extends State<LivePage> {
 
   String getGameViewSize() {
     final double scale = widgetsBinding.window.devicePixelRatio;
-    final screenWidth = MediaQuery.of(context).size.width *
-        widgetsBinding.window.devicePixelRatio;
-    final screenHeight = MediaQuery.of(context).size.height *
-        widgetsBinding.window.devicePixelRatio *
-        1.0;
+    final screenWidth = MediaQuery.of(context).size.width * widgetsBinding.window.devicePixelRatio;
+    final screenHeight = MediaQuery.of(context).size.height * widgetsBinding.window.devicePixelRatio * 1.0;
 
     final top = scale * 100; // margin
     final bottom = scale * 200; // margin
@@ -188,8 +175,7 @@ class LivePageState extends State<LivePage> {
           Align(
             alignment: Alignment.bottomCenter,
             child: Container(
-              color: const Color(
-                  0x00000000), // Background color for the operation container
+              color: const Color(0x00000000), // Background color for the operation container
               padding: EdgeInsets.all(16.0),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
