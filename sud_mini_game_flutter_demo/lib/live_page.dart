@@ -91,14 +91,14 @@ class LivePageState extends State<LivePage> {
 
   void loadIOSGame() {
     print("Start Load Game");
-    SudMGPPlugin.loadGame(localUserID, widget.liveID, _authcode, 1582551621189419010, "en-US", getGameViewSize(), getGameConfig()).then((ret) {
+    SudMGPPlugin.loadGame(localUserID, widget.liveID, _authcode, 1461227817776713818, "en-US", getGameViewSize(), getGameConfig()).then((ret) {
       setState(() => {});
     });
   }
 
   void loadAndroidGame() {
     print("loadAndroidGame:" + _authcode);
-    SudMGPPlugin.loadGame(localUserID, widget.liveID, _authcode, 1582551621189419010, "en-US", getGameViewSize(), getGameConfig()).then((ret) {
+    SudMGPPlugin.loadGame(localUserID, widget.liveID, _authcode, 1461227817776713818, "en-US", getGameViewSize(), getGameConfig()).then((ret) {
       setState(() {
         print("loadAndroidGame finished");
         _gameView = getPlatformView('SudMGPPluginView', (int viewid) => {});
