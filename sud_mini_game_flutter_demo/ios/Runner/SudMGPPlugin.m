@@ -233,7 +233,7 @@
                                     viewIdentifier:(int64_t)viewId
                                          arguments:(id _Nullable)args {
     _view = [[UIView alloc] initWithFrame:frame];
-    _view.backgroundColor = [UIColor blackColor];
+//    _view.backgroundColor = [UIColor blackColor];
     
     return self;
 }
