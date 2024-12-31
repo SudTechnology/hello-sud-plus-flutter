@@ -155,6 +155,7 @@ class SudMGPPlugin : MethodCallHandler, ActivityAware,
         if (_gameApp != null) {
             SudMGP.destroyMG(_gameApp)
         }
+        gameContainer.removeAllViews()
         result.success(mapOf("errorCode" to 0, "message" to "success"))
     }
 
