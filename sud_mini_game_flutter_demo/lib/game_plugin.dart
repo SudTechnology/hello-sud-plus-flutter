@@ -45,6 +45,14 @@ class SudMGPPlugin {
     });
   }
 
+  static Future<Map> pauseMG() async {
+    return await _methodChannel.invokeMethod("pauseMG", {});
+  }
+
+  static Future<Map> playMG() async {
+    return await _methodChannel.invokeMethod("playMG", {});
+  }
+
   static Future<Map> updateCode(String code) async {
     return await _methodChannel.invokeMethod("updateCode", {"code": code});
   }

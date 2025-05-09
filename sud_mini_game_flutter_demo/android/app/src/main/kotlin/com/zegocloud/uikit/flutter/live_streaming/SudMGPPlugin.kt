@@ -1,7 +1,9 @@
 package com.zegocloud.uikit.flutter.live_streaming
 
 import android.app.Activity
+import android.app.Application
 import android.content.Context
+import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
@@ -9,8 +11,6 @@ import android.view.View
 import android.widget.FrameLayout
 import androidx.annotation.NonNull
 import io.flutter.embedding.engine.plugins.FlutterPlugin
-import io.flutter.embedding.engine.plugins.activity.ActivityAware
-import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
 import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
@@ -25,12 +25,11 @@ import tech.sud.mgp.core.ISudListenerInitSDK
 import tech.sud.mgp.core.SudMGP
 
 
-class SudMGPPlugin : MethodCallHandler, ActivityAware,
-    EventChannel.StreamHandler, PlatformView {
+class SudMGPPlugin : MethodCallHandler, EventChannel.StreamHandler, PlatformView {
 
     private var uiHandler: Handler? = null
     private var context: Context
-    private var activity: Activity
+    private var activity: Activity? = null
     private var methodChannel: MethodChannel
     private var eventChannel: EventChannel
     private var eventSink: EventChannel.EventSink? = null
@@ -42,10 +41,25 @@ class SudMGPPlugin : MethodCallHandler, ActivityAware,
     private var _viewSize: String? = null
     private var _gameConfig: String? = null
 
-    init {
-        if (uiHandler == null) {
-            uiHandler = Handler(Looper.getMainLooper())
+    private val lifecycleCallbacks = object : Application.ActivityLifecycleCallbacks {
+        override fun onActivityResumed(act: Activity) {
+            if (act == activity) {
+                _gameApp?.playMG()
+            }
         }
+
+        override fun onActivityPaused(act: Activity) {
+            if (act == activity) {
+                _gameApp?.pauseMG()
+            }
+        }
+
+        // 可选实现其他方法
+        override fun onActivityCreated(p0: Activity, p1: Bundle?) {}
+        override fun onActivityStarted(p0: Activity) {}
+        override fun onActivityStopped(p0: Activity) {}
+        override fun onActivitySaveInstanceState(p0: Activity, p1: Bundle) {}
+        override fun onActivityDestroyed(p0: Activity) {}
     }
 
     constructor(activity: MainActivity, viewId: Int, creationParams: Map<String?, Any?>?, binding: FlutterPlugin.FlutterPluginBinding) {
@@ -58,16 +72,13 @@ class SudMGPPlugin : MethodCallHandler, ActivityAware,
         this.eventChannel.setStreamHandler(this)
 
         gameContainer = FrameLayout(activity)
+        activity.application?.registerActivityLifecycleCallbacks(lifecycleCallbacks)
     }
 
-    // ActivityAware
-    override fun onAttachedToActivity(binding: ActivityPluginBinding) {
-        activity = binding.activity;
-    }
-
-    override fun onDetachedFromActivityForConfigChanges() {}
-    override fun onReattachedToActivityForConfigChanges(binding: ActivityPluginBinding) {}
-    override fun onDetachedFromActivity() {
+    init {
+        if (uiHandler == null) {
+            uiHandler = Handler(Looper.getMainLooper())
+        }
     }
 
     // EventChannel.StreamHandler Interface
@@ -92,6 +103,14 @@ class SudMGPPlugin : MethodCallHandler, ActivityAware,
 
             "loadGame" -> {
                 loadGame(call, result)
+            }
+
+            "pauseMG" -> {
+                pauseMG(call, result)
+            }
+
+            "playMG" -> {
+                playMG(call, result)
             }
 
             "destroyGame" -> {
@@ -152,9 +171,8 @@ class SudMGPPlugin : MethodCallHandler, ActivityAware,
     }
 
     fun destroyGame(call: MethodCall, result: MethodChannel.Result) {
-        if (_gameApp != null) {
-            SudMGP.destroyMG(_gameApp)
-        }
+        _gameApp?.destroyMG()
+        _gameApp = null
         gameContainer.removeAllViews()
         result.success(mapOf("errorCode" to 0, "message" to "success"))
     }
@@ -238,11 +256,23 @@ class SudMGPPlugin : MethodCallHandler, ActivityAware,
         result.success(mapOf("errorCode" to 0, "message" to "success"))
     }
 
+    private fun pauseMG(call: MethodCall, result: MethodChannel.Result) {
+        _gameApp?.pauseMG()
+        result.success(mapOf("errorCode" to 0, "message" to "success"))
+    }
+
+    private fun playMG(call: MethodCall, result: MethodChannel.Result) {
+        _gameApp?.playMG()
+        result.success(mapOf("errorCode" to 0, "message" to "success"))
+    }
+
     // PlatformView
     override fun getView(): View {
         Log.d("sud", "kt sud getView:$gameContainer")
         return gameContainer
     }
 
-    override fun dispose() {}
+    override fun dispose() {
+        activity?.application?.registerActivityLifecycleCallbacks(lifecycleCallbacks)
+    }
 }
