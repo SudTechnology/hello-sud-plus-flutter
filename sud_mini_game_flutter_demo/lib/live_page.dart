@@ -99,6 +99,7 @@ class LivePageState extends State<LivePage> {
   void loadAndroidGame() {
     print("loadAndroidGame:" + _authcode);
     SudMGPPlugin.loadGame(localUserID, widget.liveID, _authcode, 1461227817776713818, "en-US", getGameViewSize(), getGameConfig()).then((ret) {
+      SudMGPPlugin.registerEventHandler(onGameEvent);
       setState(() {
         // print("loadAndroidGame finished");
         // _gameView = getPlatformView('SudMGPPluginView', (int viewid) => {});
@@ -126,10 +127,16 @@ class LivePageState extends State<LivePage> {
       case 'onGameDestroyed':
         break;
       case 'onGameStateChange':
+        String? state = map['state'];
+        String? dataJson = map['dataJson'];
+        print('onGameStateChange state:$state dataJson:$dataJson');
         break;
       case 'onGetGameCfg':
         break;
       case 'onPlayerStateChange':
+        String? state = map['state'];
+        String? dataJson = map['dataJson'];
+        print('onPlayerStateChange state:$state dataJson:$dataJson');
         break;
       case 'onExpireCode':
         break;
