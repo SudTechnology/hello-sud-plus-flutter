@@ -6,12 +6,12 @@ import io.flutter.plugin.common.StandardMessageCodec
 import io.flutter.plugin.platform.PlatformView
 import io.flutter.plugin.platform.PlatformViewFactory
 
-class NativeViewFactory(val binding: FlutterPlugin.FlutterPluginBinding, val activity: MainActivity) :
+class NativeViewFactory(val binding: FlutterPlugin.FlutterPluginBinding, val activity: MainActivity, val eventSinkHandler: EventSinkHandler) :
     PlatformViewFactory(StandardMessageCodec.INSTANCE) {
 
     override fun create(context: Context, viewId: Int, args: Any?): PlatformView {
         val creationParams = args as Map<String?, Any?>?
-        return SudMGPPlugin(activity, viewId, creationParams, binding)
+        return SudMGPPlugin(activity, viewId, creationParams, binding, eventSinkHandler)
     }
 
 }

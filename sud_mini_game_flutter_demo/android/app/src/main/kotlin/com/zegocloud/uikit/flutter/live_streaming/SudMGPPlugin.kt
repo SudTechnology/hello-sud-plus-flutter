@@ -11,7 +11,6 @@ import android.view.View
 import android.widget.FrameLayout
 import androidx.annotation.NonNull
 import io.flutter.embedding.engine.plugins.FlutterPlugin
-import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
@@ -25,14 +24,12 @@ import tech.sud.mgp.core.ISudListenerInitSDK
 import tech.sud.mgp.core.SudMGP
 
 
-class SudMGPPlugin : MethodCallHandler, EventChannel.StreamHandler, PlatformView {
+class SudMGPPlugin : MethodCallHandler, PlatformView {
 
     private var uiHandler: Handler? = null
     private var context: Context
     private var activity: Activity? = null
     private var methodChannel: MethodChannel
-    private var eventChannel: EventChannel
-    private var eventSink: EventChannel.EventSink? = null
 
     private var _gameApp: ISudFSTAPP? = null // game interface
     private var _gameView: View? = null
@@ -40,6 +37,7 @@ class SudMGPPlugin : MethodCallHandler, EventChannel.StreamHandler, PlatformView
 
     private var _viewSize: String? = null
     private var _gameConfig: String? = null
+    private val eventSinkHandler: EventSinkHandler
 
     private val lifecycleCallbacks = object : Application.ActivityLifecycleCallbacks {
         override fun onActivityResumed(act: Activity) {
@@ -62,14 +60,18 @@ class SudMGPPlugin : MethodCallHandler, EventChannel.StreamHandler, PlatformView
         override fun onActivityDestroyed(p0: Activity) {}
     }
 
-    constructor(activity: MainActivity, viewId: Int, creationParams: Map<String?, Any?>?, binding: FlutterPlugin.FlutterPluginBinding) {
+    constructor(
+        activity: MainActivity,
+        viewId: Int,
+        creationParams: Map<String?, Any?>?,
+        binding: FlutterPlugin.FlutterPluginBinding,
+        eventSinkHandler: EventSinkHandler
+    ) {
         this.context = activity
         this.activity = activity
+        this.eventSinkHandler = eventSinkHandler
         this.methodChannel = MethodChannel(binding.binaryMessenger, "SudMGPPlugin")
-        this.eventChannel = EventChannel(binding.binaryMessenger, "SudMGPPluginEvent")
-
         this.methodChannel.setMethodCallHandler(this)
-        this.eventChannel.setStreamHandler(this)
 
         gameContainer = FrameLayout(activity)
         activity.application?.registerActivityLifecycleCallbacks(lifecycleCallbacks)
@@ -79,15 +81,6 @@ class SudMGPPlugin : MethodCallHandler, EventChannel.StreamHandler, PlatformView
         if (uiHandler == null) {
             uiHandler = Handler(Looper.getMainLooper())
         }
-    }
-
-    // EventChannel.StreamHandler Interface
-    override fun onListen(arguments: Any?, events: EventChannel.EventSink) {
-        eventSink = events
-    }
-
-    override fun onCancel(arguments: Any?) {
-        eventSink = null
     }
 
     // method channel
@@ -201,41 +194,49 @@ class SudMGPPlugin : MethodCallHandler, EventChannel.StreamHandler, PlatformView
 
         _gameApp = SudMGP.loadMG(activity, userid, roomid, code, gameid ?: 0, language, object : ISudFSMMG {
             override fun onGameLog(dataJson: String?) {
-                uiHandler?.post(Runnable { eventSink?.success(mapOf("method" to "onGameLog", "dataJson" to dataJson)) })
+                uiHandler?.post(Runnable { eventSinkHandler.eventSink?.success(mapOf("method" to "onGameLog", "dataJson" to dataJson)) })
             }
 
             override fun onGameLoadingProgress(p0: Int, p1: Int, p2: Int) {
             }
 
             override fun onGameStarted() {
-                uiHandler?.post(Runnable { eventSink?.success(mapOf("method" to "onGameStarted")) })
+                uiHandler?.post(Runnable { eventSinkHandler.eventSink?.success(mapOf("method" to "onGameStarted")) })
             }
 
             override fun onGameDestroyed() {
-                uiHandler?.post(Runnable { eventSink?.success(mapOf("method" to "onGameDestroyed")) })
+                uiHandler?.post(Runnable { eventSinkHandler.eventSink?.success(mapOf("method" to "onGameDestroyed")) })
             }
 
             override fun onExpireCode(handle: ISudFSMStateHandle?, dataJson: String?) {
-                uiHandler?.post(Runnable { eventSink?.success(mapOf("method" to "onExpireCode", "dataJson" to dataJson)) })
-                handle?.success("{}");
+                uiHandler?.post(Runnable { eventSinkHandler.eventSink?.success(mapOf("method" to "onExpireCode", "dataJson" to dataJson)) })
+                handle?.success("{}")
             }
 
             override fun onGetGameViewInfo(handle: ISudFSMStateHandle?, dataJson: String?) {
-                handle?.success(_viewSize);
+                handle?.success(_viewSize)
             }
 
             override fun onGetGameCfg(handle: ISudFSMStateHandle?, dataJson: String?) {
-                handle?.success(_gameConfig);
+                handle?.success(_gameConfig)
             }
 
             override fun onGameStateChange(handle: ISudFSMStateHandle?, state: String, dataJson: String) {
-                uiHandler?.post(Runnable { eventSink?.success(mapOf("method" to "onGameStateChange", "dataJson" to dataJson, "state" to state)) })
-                handle?.success("{}");
+                uiHandler?.post(Runnable {
+                    eventSinkHandler.eventSink?.success(
+                        mapOf(
+                            "method" to "onGameStateChange",
+                            "dataJson" to dataJson,
+                            "state" to state
+                        )
+                    )
+                })
+                handle?.success("{}")
             }
 
             override fun onPlayerStateChange(handle: ISudFSMStateHandle?, userId: String, state: String, dataJson: String) {
                 uiHandler?.post(Runnable {
-                    eventSink?.success(
+                    eventSinkHandler.eventSink?.success(
                         mapOf(
                             "method" to "onPlayerStateChange",
                             "dataJson" to dataJson,
