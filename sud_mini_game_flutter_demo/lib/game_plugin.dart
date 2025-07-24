@@ -67,4 +67,9 @@ class SudMGPPlugin {
       "dataJson": dataJson,
     });
   }
+
+  // 发送音频流数据
+  static Future<Map> pushAudio(Uint8List byteArray) async {
+    return await _methodChannel.invokeMethod("pushAudio", byteArray);
+  }
 }

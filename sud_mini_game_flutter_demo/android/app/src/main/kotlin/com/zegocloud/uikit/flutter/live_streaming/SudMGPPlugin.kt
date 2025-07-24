@@ -22,6 +22,7 @@ import tech.sud.mgp.core.ISudFSTAPP
 import tech.sud.mgp.core.ISudListenerGetMGList
 import tech.sud.mgp.core.ISudListenerInitSDK
 import tech.sud.mgp.core.SudMGP
+import java.nio.ByteBuffer
 
 
 class SudMGPPlugin : MethodCallHandler, PlatformView {
@@ -122,6 +123,10 @@ class SudMGPPlugin : MethodCallHandler, PlatformView {
                 notifyStateChange(call, result)
             }
 
+            "pushAudio" -> {
+                pushAudio(call, result)
+            }
+
             else -> {
                 result.notImplemented()
             }
@@ -180,6 +185,15 @@ class SudMGPPlugin : MethodCallHandler, PlatformView {
         val state: String = call.argument<String>("state") ?: ""
         val dataJson: String = call.argument<String>("dataJson") ?: ""
         _gameApp?.notifyStateChange(state, dataJson, null)
+        result.success(mapOf("errorCode" to 0, "message" to "success"))
+    }
+
+    fun pushAudio(call: MethodCall, result: MethodChannel.Result) {
+        val arguments = call.arguments
+        if (arguments is ByteArray) {
+            val byteBuffer = ByteBuffer.wrap(arguments)
+            _gameApp?.pushAudio(byteBuffer, arguments.size)
+        }
         result.success(mapOf("errorCode" to 0, "message" to "success"))
     }
 
