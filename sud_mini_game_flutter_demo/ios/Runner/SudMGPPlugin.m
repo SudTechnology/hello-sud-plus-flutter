@@ -43,8 +43,28 @@
     [registrar addMethodCallDelegate:(NSObject<FlutterPlugin> *)self channel:_methodChannel];
     
     [registrar registerViewFactory:self withId:@"SudMGPPluginView"];
-    
+    [self addNotification];
     return self;
+}
+
+- (void)addNotification {
+    NSNotificationCenter *defaultCenter = [NSNotificationCenter defaultCenter];
+    [defaultCenter removeObserver:self];
+    // 维护游戏进入应用活跃非活跃时状态
+    [defaultCenter addObserver:self selector:@selector(appDidBecomeActive:) name:UIApplicationDidBecomeActiveNotification object:nil];
+    [defaultCenter addObserver:self selector:@selector(appDidBecomeInactive:) name:UIApplicationWillResignActiveNotification object:nil];
+}
+
+- (void)appDidBecomeActive:(NSNotification *)notification {
+    if (_gameApp) {
+        [_gameApp playMG];
+    }
+}
+
+- (void)appDidBecomeInactive:(NSNotification *)notification {
+    if (_gameApp) {
+        [_gameApp pauseMG];
+    }
 }
 
 - (void)handleMethodCall:(FlutterMethodCall *)call result:(FlutterResult)result {
