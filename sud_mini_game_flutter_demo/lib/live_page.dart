@@ -100,18 +100,18 @@ class LivePageState extends State<LivePage> {
     print("loadAndroidGame:" + _authcode);
     SudMGPPlugin.loadGame(localUserID, widget.liveID, _authcode, 1461227817776713818, "en-US", getGameViewSize(), getGameConfig()).then((ret) {
       setState(() {
-        print("loadAndroidGame finished");
-        _gameView = getPlatformView('SudMGPPluginView', (int viewid) => {});
+        // print("loadAndroidGame finished");
+        // _gameView = getPlatformView('SudMGPPluginView', (int viewid) => {});
       });
     });
   }
 
   void destroyGame() {
-    if (TargetPlatform.android == defaultTargetPlatform) {
-      setState(() {
-        _gameView = null;
-      });
-    }
+    // if (TargetPlatform.android == defaultTargetPlatform) {
+    //   setState(() {
+    //     _gameView = null;
+    //   });
+    // }
 
     SudMGPPlugin.destroyGame();
   }
