@@ -69,6 +69,7 @@ flutter {
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation 'com.squareup.okhttp3:okhttp:4.9.1'
-    implementation 'tech.sud.mgp:SudMGP:1.5.4.1247'
+    implementation 'tech.sud.gip:SudGIP:1.6.2.1249'
+//    implementation 'tech.sud.gip:SudASR:1.6.2.1249'
 //    implementation files('libs/SudMGP-v1.3.0.1120-lite.aar')
 }

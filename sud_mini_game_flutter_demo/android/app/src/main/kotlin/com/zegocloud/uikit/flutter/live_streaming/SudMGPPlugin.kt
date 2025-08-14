@@ -16,12 +16,14 @@ import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 import io.flutter.plugin.platform.PlatformView
-import tech.sud.mgp.core.ISudFSMMG
-import tech.sud.mgp.core.ISudFSMStateHandle
-import tech.sud.mgp.core.ISudFSTAPP
-import tech.sud.mgp.core.ISudListenerGetMGList
-import tech.sud.mgp.core.ISudListenerInitSDK
-import tech.sud.mgp.core.SudMGP
+import tech.sud.gip.core.ISudFSMMG
+import tech.sud.gip.core.ISudFSMStateHandle
+import tech.sud.gip.core.ISudFSTAPP
+import tech.sud.gip.core.ISudListenerGetMGList
+import tech.sud.gip.core.ISudListenerInitSDK
+import tech.sud.gip.core.SudGIP
+import tech.sud.gip.core.SudInitSDKParamModel
+import tech.sud.gip.core.SudLoadMGParamModel
 import java.nio.ByteBuffer
 
 
@@ -134,7 +136,7 @@ class SudMGPPlugin : MethodCallHandler, PlatformView {
     }
 
     fun getVersion(call: MethodCall, result: MethodChannel.Result) {
-        var version = SudMGP.getVersion();
+        var version = SudGIP.getVersion();
         result.success(mapOf("errorCode" to 0, "version" to version))
     }
 
@@ -143,8 +145,12 @@ class SudMGPPlugin : MethodCallHandler, PlatformView {
         val appkey: String? = call.argument<String>("appkey")
         var isTestEnv: Boolean? = call.argument<Boolean>("isTestEnv")
 
-
-        SudMGP.initSDK(context, appid, appkey, isTestEnv ?: false, object : ISudListenerInitSDK {
+        val params = SudInitSDKParamModel()
+        params.context = context
+        params.appId = appid
+        params.appKey = appkey
+        params.isTestEnv = isTestEnv ?: false
+        SudGIP.initSDK(params, object : ISudListenerInitSDK {
             override fun onSuccess() {
                 result.success(mapOf("errorCode" to 0, "message" to "success"))
             }
@@ -157,7 +163,7 @@ class SudMGPPlugin : MethodCallHandler, PlatformView {
     }
 
     fun getGameList(call: MethodCall, result: MethodChannel.Result) {
-        SudMGP.getMGList(object : ISudListenerGetMGList {
+        SudGIP.getMGList(object : ISudListenerGetMGList {
             override fun onSuccess(dataJson: String?) {
                 result.success(mapOf("errorCode" to 0, "message" to "success", "dataJson" to dataJson))
             }
@@ -206,7 +212,14 @@ class SudMGPPlugin : MethodCallHandler, PlatformView {
         _viewSize = call.argument<String>("viewSize")
         _gameConfig = call.argument<String>("gameConfig")
 
-        _gameApp = SudMGP.loadMG(activity, userid, roomid, code, gameid ?: 0, language, object : ISudFSMMG {
+        val params = SudLoadMGParamModel()
+        params.activity = activity
+        params.userId = userid
+        params.roomId = roomid
+        params.code = code
+        params.mgId = gameid ?: 0
+        params.language = language
+        _gameApp = SudGIP.loadMG(params, object : ISudFSMMG {
             override fun onGameLog(dataJson: String?) {
                 uiHandler?.post(Runnable { eventSinkHandler.eventSink?.success(mapOf("method" to "onGameLog", "dataJson" to dataJson)) })
             }
