@@ -46,7 +46,7 @@ android {
         applicationId "tech.sud.mgp.hello.closed"
         // You can update the following values to match your application needs.
         // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-build-configuration.
-        minSdkVersion 21 // flutter.minSdkVersion
+        minSdkVersion 22 // flutter.minSdkVersion
         targetSdkVersion flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
@@ -69,7 +69,6 @@ flutter {
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation 'com.squareup.okhttp3:okhttp:4.9.1'
-    implementation 'tech.sud.gip:SudGIP:1.6.2.1249'
-//    implementation 'tech.sud.gip:SudASR:1.6.2.1249'
-//    implementation files('libs/SudMGP-v1.3.0.1120-lite.aar')
+    implementation 'tech.sud.gip:SudGIP:1.6.4.1266-beta'
+//    implementation 'tech.sud.gip:SudASR:1.6.4.1266-beta'
 }
