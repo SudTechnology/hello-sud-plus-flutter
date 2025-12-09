@@ -31,8 +31,8 @@ target 'Runner' do
   use_frameworks!
   use_modular_headers!
 
-  pod 'SudMGP_Lite', '~> 1.4.8'
-  pod 'SudMGPWrapper_Lite'
+  pod 'SudGIP', '~> 1.6.4'
+  pod 'SudGIPWrapper'
 
   flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
 end

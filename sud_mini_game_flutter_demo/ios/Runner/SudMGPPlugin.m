@@ -1,10 +1,8 @@
 #import "SudMGPPlugin.h"
 #import <Flutter/Flutter.h>
 #import "QueueUtils.h"
-#import <SudMGP/ISudFSMMG.h>
-#import <SudMGP/ISudFSMStateHandle.h>
-#import <SudMGP/ISudFSTAPP.h>
-#import <SudMGP/SudMGP.h>
+#import <SudGIP/SudGIP-umbrella.h>
+#import <SudGIPWrapper-umbrella.h>
 #import <UIKit/UIKit.h>
 
 @interface SudMGPPlugin () <ISudFSMMG, FlutterStreamHandler>
@@ -77,10 +75,12 @@
         NSString *appid = ((NSString *)call.arguments[@"appid"]);
         NSString *appkey = ((NSString *)call.arguments[@"appkey"]);
         BOOL isTestEnv = ((NSNumber *)call.arguments[@"isTestEnv"]).boolValue;
-        [SudMGP setLogLevel:1];
-        [SudMGP initSDK:appid
-                 appKey:appkey
-              isTestEnv:isTestEnv
+        [SudGIP setLogLevel:1];
+        SudInitSDKParamModel *paramModel = [[SudInitSDKParamModel alloc]init];
+        paramModel.appId = appid;
+        paramModel.appKey = appkey;
+        paramModel.isTestEnv = isTestEnv;
+        [SudGIP initSDK:paramModel
                listener:^(int errorCode, const NSString *message) {
             result(@{
                 @"message" : message,
@@ -88,7 +88,7 @@
             });
         }];
     } else if ([@"getGameList" isEqualToString:call.method]) {
-        [SudMGP getMGList:^(int errorCode, const NSString *_Nonnull message,
+        [SudGIP getMGList:^(int errorCode, const NSString *_Nonnull message,
                             const NSString *_Nonnull dataJson) {
             result(@{
                 @"errorCode" : [NSNumber numberWithInt:errorCode],
@@ -109,13 +109,14 @@
             @"message" : @"success",
             @"errorCode" : @0,
         });
-        self.gameApp = [SudMGP loadMG:userid
-                               roomId:roomid
-                                 code:code
-                                 mgId:gameid
-                             language:language
-                                fsmMG:self
-                             rootView:self.view];  // todo fix view
+        SudLoadMGParamModel *paramModel = [[SudLoadMGParamModel alloc]init];
+        paramModel.userId = userid;
+        paramModel.roomId = roomid;
+        paramModel.code = code;
+        paramModel.mgId = gameid;
+        paramModel.gameViewContainer = self.view;
+        paramModel.language = language;
+        self.gameApp = [SudGIP loadMG:paramModel fsmMG:self];
         
     } else if ([@"destroyGame" isEqualToString:call.method]) {
         [self.gameApp destroyMG];
