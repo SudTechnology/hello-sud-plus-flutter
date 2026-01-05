@@ -1,0 +1,33 @@
+PODS:
+  - Flutter (1.0.0)
+  - MJExtension (3.4.2)
+  - sud_gip_plugin (0.0.1):
+    - Flutter
+    - MJExtension (~> 3.4.1)
+    - SudGIP (~> 1.6.5)
+  - SudGIP (1.6.5)
+
+DEPENDENCIES:
+  - Flutter (from `Flutter`)
+  - sud_gip_plugin (from `.symlinks/plugins/sud_gip_plugin/ios`)
+
+SPEC REPOS:
+  trunk:
+    - MJExtension
+    - SudGIP
+
+EXTERNAL SOURCES:
+  Flutter:
+    :path: Flutter
+  sud_gip_plugin:
+    :path: ".symlinks/plugins/sud_gip_plugin/ios"
+
+SPEC CHECKSUMS:
+  Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
+  MJExtension: e97d164cb411aa9795cf576093a1fa208b4a8dd8
+  sud_gip_plugin: f0ac94b8c3c6cc61e6b0ef7983bdc3e353c45142
+  SudGIP: 93de5b99dceeb7f0f85ecef1f57f566f6c85e897
+
+PODFILE CHECKSUM: 3c63482e143d1b91d2d2560aee9fb04ecc74ac7e
+
+COCOAPODS: 1.15.2
