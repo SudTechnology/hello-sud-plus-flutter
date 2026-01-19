@@ -15,5 +15,5 @@ iOS最低支持11<p>
 请参考本demo代码：lib/game_page.dart
 
 ### 修改原生引入的SDK版本
-Android请查看：android/build.gradle.kts
+Android请查看：android/build.gradle.kts<p>
 iOS请查看：ios/Podfile

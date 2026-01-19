@@ -26,5 +26,5 @@ Please refer to the demo code in:
 `lib/game_page.dart`
 
 ### Modify the Native SDK Version
-For Android, please refer to: `android/build.gradle.kts`
+For Android, please refer to: `android/build.gradle.kts`<p>
 For iOS, please refer to: `ios/Podfile`
