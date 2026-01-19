@@ -188,10 +188,10 @@ packages:
     dependency: "direct main"
     description:
       name: sud_gip_plugin
-      sha256: "850648d0a86feeb8666e5bbb9869f3da1d513fc064eeeaeab57036267a4df557"
+      sha256: cb00b7e3a470578b9eb7c8fb3b8e4a38c25ef657fbe9afa9addf1fe4cfc16538
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "0.0.1"
+    version: "0.0.2"
   term_glyph:
     dependency: transitive
     description:

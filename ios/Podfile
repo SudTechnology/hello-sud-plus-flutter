@@ -4,6 +4,11 @@
 # CocoaPods analytics sends network stats synchronously affecting flutter build latency.
 ENV['COCOAPODS_DISABLE_STATS'] = 'true'
 
+# 开发者可以自定义引用的iOS原生SDK名称和版本
+# Developers can customize the name and version of the native iOS SDK they refer to
+#ENV['SUD_GIP_IOS_SDK_NAME'] = 'SudGIP-pro'
+#ENV['SUD_GIP_IOS_SDK_VERSION'] = '~> 1.6.5'
+
 project 'Runner', {
   'Debug' => :debug,
   'Profile' => :release,

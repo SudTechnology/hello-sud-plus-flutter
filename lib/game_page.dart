@@ -66,6 +66,11 @@ class GamePageState extends State<GamePage> with WidgetsBindingObserver {
       log('gip version = $version');
     });
 
+    // getVersionAlias
+    SudGipPlugin.getVersionAlias().then((String? versionAlias) {
+      log('gip versionAlias = $versionAlias');
+    });
+
     // regist observer
     WidgetsBinding.instance.addObserver(this);
   }
